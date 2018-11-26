@@ -88,10 +88,10 @@ class SpiderWork(object):
                    str(isstop) + "\t\t|" + tran_city + "\t|" + tran_arvdate + "\t|" + tran_arvtime +"\t|" + tran_depdate + "\t|" +
                    tran_deptime + "\t|" + str(ontime_Rate) + "\t\t|" +  str(price_1) + "\t\t|" + str(price_2) + "\t\t|" + str(price_3) + "\t\t")
 
-    def crawler(self, dcity, acity, dtime, client_id):
+    def crawler(self, dcity, acity, dtime, client_id, tid):
 
-        payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "O"}],"subchannel":null,"tid":"{680429c3-617a-434c-93c0-9f9bed847fd8}", "head": {"cid": "%s" % client_id, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
-        # payload = json.dumps({"preprdid":"","trptpe":1,"flag":8,"searchitem":[{"dccode":"BJS","accode":"SHA","dtime":"2018-11-27"}],"version":[{"Key":"170710_fld_dsmid","Value":"O"}],"subchannel":null,"tid":"{680429c3-617a-434c-93c0-9f9bed847fd8}","head":{"cid":"09031091111093401287","ctok":"","cver":"1.0","lang":"01","sid":"8888","syscode":"09","auth":null,"extension":[{"name":"protocal","value":"https"}]},"contentType":"json"})
+        payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "O"}],"subchannel":null,"tid":"{%s}" % tid, "head": {"cid": "%s" % client_id, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
+        # payload = json.dumps({"preprdid":"","trptpe":1,"flag":8,"searchitem":[{"dccode":"BJS","accode":"SHA","dtime":"2018-11-27"}],"version":[{"Key":"170710_fld_dsmid","Value":"O"}],"subchannel":null,"tid":"{9530893a-ef24-490f-8334-bf6746d51c23}","head":{"cid":"09031091111093401287","ctok":"","cver":"1.0","lang":"01","sid":"8888","syscode":"09","auth":null,"extension":[{"name":"protocal","value":"https"}]},"contentType":"json"})
         print("正在使用cid : " + client_id)
 
         header = {'User-Agent': "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Mobile/14E304 baiduboxapp/0_11.0.1.8_enohpi_8022_2421/1.3.01_2C2%258enohPi/1099a/40044AA73C7F521FD9D4D47BC8570DFBAA9EC4310ORSBMFSBPO/1"}
@@ -117,6 +117,15 @@ class SpiderWork(object):
             client_id = r['ClientID']
             print("获取的 ClientID = " + r['ClientID'])
 
+            tid_url = 'https://m.ctrip.com/restapi/soa2/12784/Fio/Notice/Query?_fxpcqlniredt=' + client_id
+            tid_result = requests.get(tid_url)
+            tid_r = eval(tid_result.content.decode('utf-8'))
+            tid = None
+            print("获取的 tid = " + tid)
+            for i in tid_r["ResponseStatus"]['extension']:
+                if i['id'] == 'RootMessageId':
+                    tid = i['value']
+
             date_list = []
             for i in range(10):
                 date_list.append((datetime.date.today() + datetime.timedelta(days=i + 1)).strftime("%Y-%m-%d"))
@@ -126,7 +135,7 @@ class SpiderWork(object):
 
             for i in range(len(date_list)):
                 print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (date_list[i], d_city, a_city))
-                self.crawler(d_city, a_city, date_list[i], client_id)
+                self.crawler(d_city, a_city, date_list[i], client_id, tid)
                 time.sleep(random.random() + 4)
 
 if __name__=="__main__":
