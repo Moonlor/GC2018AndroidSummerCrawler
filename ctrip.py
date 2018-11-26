@@ -75,13 +75,12 @@ class SpiderWork(object):
                 pass
 
             price_1, price_2, price_3 = 99999, 99999, 99999
-            for k in i["policyinfo"]:
-                if re.match("经济舱", k["classinfor"][0]["display"]):
-                    price_1 = k["tprice"]
-                if re.match(".*公务舱", k["classinfor"][0]["display"]):
-                    price_2 = k["tprice"]
-                if re.match(".*头等舱", k["classinfor"][0]["display"]):
-                    price_3 = k["tprice"]
+            try:
+              price_1 = i["policyinfo"][0]['priceinfo'][0]['price']
+              price_2 = i["policyinfo"][0]['priceinfo'][1]['price']
+              price_3 = i["policyinfo"][0]['priceinfo'][2]['price']
+            except:
+                pass
 
 
             print( airline + "\t\t|" + str(flight_id) + "\t|" + dept_date + "\t|" + dept_time + "\t|" + dept_city + "\t|" +
@@ -91,11 +90,12 @@ class SpiderWork(object):
 
     def crawler(self, dcity, acity, dtime, client_id):
 
-        payload = json.dumps({"preprdid": "","trptpe": 2,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "O"}],"head": {"cid": "%s" % client_id, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
+        payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "O"}],"subchannel":null,"tid":"{680429c3-617a-434c-93c0-9f9bed847fd8}", "head": {"cid": "%s" % client_id, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
+        # payload = json.dumps({"preprdid":"","trptpe":1,"flag":8,"searchitem":[{"dccode":"BJS","accode":"SHA","dtime":"2018-11-27"}],"version":[{"Key":"170710_fld_dsmid","Value":"O"}],"subchannel":null,"tid":"{680429c3-617a-434c-93c0-9f9bed847fd8}","head":{"cid":"09031091111093401287","ctok":"","cver":"1.0","lang":"01","sid":"8888","syscode":"09","auth":null,"extension":[{"name":"protocal","value":"https"}]},"contentType":"json"})
         print("正在使用cid : " + client_id)
 
         header = {'User-Agent': "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Mobile/14E304 baiduboxapp/0_11.0.1.8_enohpi_8022_2421/1.3.01_2C2%258enohPi/1099a/40044AA73C7F521FD9D4D47BC8570DFBAA9EC4310ORSBMFSBPO/1"}
-        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + client_id, data=payload, headers=header)
+        tmp = requests.post('https://m.ctrip.com/restapi/soa2/14022/flightListSearch?_fxpcqlniredt=' + client_id, data=payload, headers=header)
         r = eval(tmp.content.decode('utf-8'))
         print(r)
 
