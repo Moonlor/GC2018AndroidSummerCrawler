@@ -121,10 +121,10 @@ class SpiderWork(object):
             tid_result = requests.get(tid_url)
             tid_r = eval(tid_result.content.decode('utf-8'))
             tid = None
-            print("获取的 tid = " + tid)
             for i in tid_r["ResponseStatus"]['extension']:
                 if i['id'] == 'RootMessageId':
                     tid = i['value']
+            print("获取的 tid = " + tid)
 
             date_list = []
             for i in range(10):
